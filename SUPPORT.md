@@ -1,6 +1,6 @@
 # 反馈与联系
 
-当前公开测试版本：`jilungang-debate-coach` 1.2.2。
+当前公开测试版本：`jilungang-debate-coach` 1.2.3。
 
 ## 一般问题：GitHub Issues
 

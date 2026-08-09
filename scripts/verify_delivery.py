@@ -13,7 +13,7 @@ import stat
 import sys
 
 
-EXPECTED_VERSION = "1.2.2"
+EXPECTED_VERSION = "1.2.3"
 SKILL_DIR = "jilungang-debate-coach"
 SKILL_HASHES = {
     "SKILL.md": "ca06e340afa950effde55dac45c561a88edd452922d3020be349b19de99b76ce",

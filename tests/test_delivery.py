@@ -110,16 +110,16 @@ class DeliveryContractTests(unittest.TestCase):
 
     def test_readme_version_mismatch_is_reported(self):
         path = self.repo / "README.md"
-        path.write_text(path.read_text(encoding="utf-8").replace("1.2.2", "1.2.3"), encoding="utf-8")
+        path.write_text(path.read_text(encoding="utf-8").replace("1.2.3", "1.2.4"), encoding="utf-8")
         self.assertTrue(any("README.md does not identify version" in e for e in self.errors()))
 
     def test_conflicting_version_declaration_is_reported(self):
         path = self.repo / "README.md"
-        path.write_text(path.read_text(encoding="utf-8") + "\n当前版本：1.2.3\n", encoding="utf-8")
+        path.write_text(path.read_text(encoding="utf-8") + "\n当前版本：1.2.4\n", encoding="utf-8")
         self.assertTrue(any("conflicting version" in e for e in self.errors()))
 
     def test_tag_version_mismatch_is_reported(self):
-        self.assertTrue(any("tag must be v1.2.2" in e for e in self.errors(mode="tag", ref_name="v1.2.3")))
+        self.assertTrue(any("tag must be v1.2.3" in e for e in self.errors(mode="tag", ref_name="v1.2.4")))
 
     def test_contact_number_is_canonical(self):
         support = (self.repo / "SUPPORT.md").read_text(encoding="utf-8")
@@ -135,7 +135,7 @@ class DeliveryContractTests(unittest.TestCase):
 
     def test_issue_template_version_must_match(self):
         path = self.repo / ".github" / "ISSUE_TEMPLATE" / "skill-feedback.md"
-        path.write_text(path.read_text(encoding="utf-8").replace("Skill 版本：1.2.2", "Skill 版本：1.2.3"), encoding="utf-8")
+        path.write_text(path.read_text(encoding="utf-8").replace("Skill 版本：1.2.3", "Skill 版本：1.2.4"), encoding="utf-8")
         self.assertTrue(any("Issue template does not identify version" in e for e in self.errors()))
 
     def test_main_push_guard_skips_the_zero_before_sha_on_initial_push(self):
