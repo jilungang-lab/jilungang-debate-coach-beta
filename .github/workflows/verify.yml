@@ -28,7 +28,7 @@ jobs:
         run: git diff --exit-code "origin/${{ github.base_ref }}...HEAD" -- jilungang-debate-coach
 
       - name: Reject direct Skill payload changes on main
-        if: github.event_name == 'push' && github.ref_type == 'branch'
+        if: github.event_name == 'push' && github.ref_type == 'branch' && github.event.before != '0000000000000000000000000000000000000000'
         run: git diff --exit-code "${{ github.event.before }}...${{ github.sha }}" -- jilungang-debate-coach
 
       - name: Run delivery unit tests

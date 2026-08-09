@@ -125,6 +125,13 @@ class DeliveryContractTests(unittest.TestCase):
         path.write_text(path.read_text(encoding="utf-8").replace("Skill 版本：1.2.0", "Skill 版本：1.2.1"), encoding="utf-8")
         self.assertTrue(any("Issue template does not identify version" in e for e in self.errors()))
 
+    def test_main_push_guard_skips_the_zero_before_sha_on_initial_push(self):
+        workflow = (self.repo / ".github" / "workflows" / "verify.yml").read_text(encoding="utf-8")
+        self.assertIn(
+            "github.event.before != '0000000000000000000000000000000000000000'",
+            workflow,
+        )
+
 
 if __name__ == "__main__":
     unittest.main()
