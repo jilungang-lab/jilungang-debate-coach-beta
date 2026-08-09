@@ -1,12 +1,12 @@
 # 反馈与联系
 
-当前内测版本：`jilungang-debate-coach` 1.2.0。
+当前公开测试版本：`jilungang-debate-coach` 1.2.1。
 
 ## 一般问题：GitHub Issues
 
-功能异常、触发问题、表达建议和文档问题，请使用[内测反馈模板](https://github.com/jilungang-lab/jilungang-debate-coach-beta/issues/new?template=skill-feedback.md)。
+功能异常、触发问题、表达建议和文档问题，请使用[公开测试反馈模板](https://github.com/jilungang-lab/jilungang-debate-coach-beta/issues/new?template=skill-feedback.md)。
 
-GitHub Issues 是私有仓库内的共享空间，所有拥有该仓库读取权限的受邀成员均可查看，Issue 不是一对一私信。只提交脱敏后的最小复现，不要上传比赛密件、完整未公开稿件、个人信息、账号信息，或无权分享的书籍和论文全文。上传附件前，也请检查文件元数据、批注、修订记录和隐藏信息。
+GitHub Issues 是公开空间，任何人都可查看，Issue 不是一对一私信；提交 Issue 需要登录 GitHub。只提交脱敏后的最小复现，不要上传比赛密件、完整未公开稿件、个人信息、账号信息，或无权分享的书籍和论文全文。上传附件前，也请检查文件元数据、批注、修订记录和隐藏信息。
 
 ## 敏感问题：小红书私信
 

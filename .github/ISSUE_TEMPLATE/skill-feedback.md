@@ -1,5 +1,5 @@
 ---
-name: 基论港内测反馈
+name: 基论港公开测试反馈
 about: 提交脱敏后的可复现功能、触发、表达或文档问题
 title: "[反馈] "
 labels: feedback
@@ -8,7 +8,7 @@ assignees: ''
 
 ## 提交前先检查
 
-所有拥有该私有仓库读取权限的受邀成员均可查看这里的内容，Issue 不是一对一私信。
+这是公开仓库，这里的内容任何人都可查看，Issue 不是一对一私信。
 
 - [ ] 我已阅读 [反馈与联系说明](/jilungang-lab/jilungang-debate-coach-beta/blob/main/SUPPORT.md)。
 - [ ] 我确认以下内容不含个人信息、比赛密件、账号信息、完整未公开稿件或无权分享的资料全文。
@@ -18,7 +18,7 @@ assignees: ''
 
 ## 基本信息
 
-- Skill 版本：1.2.0
+- Skill 版本：1.2.1
 - Codex 版本（如知道）：
 - 操作系统：
 - 安装来源（Release／标签／提交号）：

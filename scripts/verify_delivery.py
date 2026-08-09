@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Verify the reproducible-delivery contract for the private beta repository."""
+"""Verify the reproducible-delivery contract for the public beta repository."""
 
 from __future__ import annotations
 
@@ -13,7 +13,7 @@ import stat
 import sys
 
 
-EXPECTED_VERSION = "1.2.0"
+EXPECTED_VERSION = "1.2.1"
 SKILL_DIR = "jilungang-debate-coach"
 SKILL_HASHES = {
     "SKILL.md": "ca06e340afa950effde55dac45c561a88edd452922d3020be349b19de99b76ce",
@@ -199,9 +199,9 @@ def validate_repo(root: Path, *, mode: str = "normal", ref_name: str | None = No
                 _validate_local_links(root, path, text, errors)
 
     version_markers = {
-        "README.md": f"这是 `jilungang-debate-coach` {version} 的受邀内测版。",
+        "README.md": f"这是 `jilungang-debate-coach` {version} 的公开测试版。",
         "FEEDBACK.md": f"当前 Skill 版本：`jilungang-debate-coach` {version}。",
-        "SUPPORT.md": f"当前内测版本：`jilungang-debate-coach` {version}。",
+        "SUPPORT.md": f"当前公开测试版本：`jilungang-debate-coach` {version}。",
     }
     for relative, marker in version_markers.items():
         text = readable.get(relative, "")
@@ -213,7 +213,7 @@ def validate_repo(root: Path, *, mode: str = "normal", ref_name: str | None = No
 
     support = readable.get("SUPPORT.md", "")
     for phrase in (
-        "所有拥有该仓库读取权限的受邀成员均可查看",
+        "任何人都可查看",
         "Issue 不是一对一私信",
         "小红书",
         "无法判断",

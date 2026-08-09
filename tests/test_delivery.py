@@ -97,16 +97,16 @@ class DeliveryContractTests(unittest.TestCase):
 
     def test_readme_version_mismatch_is_reported(self):
         path = self.repo / "README.md"
-        path.write_text(path.read_text(encoding="utf-8").replace("1.2.0", "1.2.1"), encoding="utf-8")
+        path.write_text(path.read_text(encoding="utf-8").replace("1.2.1", "1.2.2"), encoding="utf-8")
         self.assertTrue(any("README.md does not identify version" in e for e in self.errors()))
 
     def test_conflicting_version_declaration_is_reported(self):
         path = self.repo / "README.md"
-        path.write_text(path.read_text(encoding="utf-8") + "\n当前版本：1.2.1\n", encoding="utf-8")
+        path.write_text(path.read_text(encoding="utf-8") + "\n当前版本：1.2.2\n", encoding="utf-8")
         self.assertTrue(any("conflicting version" in e for e in self.errors()))
 
     def test_tag_version_mismatch_is_reported(self):
-        self.assertTrue(any("tag must be v1.2.0" in e for e in self.errors(mode="tag", ref_name="v1.2.1")))
+        self.assertTrue(any("tag must be v1.2.1" in e for e in self.errors(mode="tag", ref_name="v1.2.2")))
 
     def test_contact_number_is_canonical(self):
         support = (self.repo / "SUPPORT.md").read_text(encoding="utf-8")
@@ -122,7 +122,7 @@ class DeliveryContractTests(unittest.TestCase):
 
     def test_issue_template_version_must_match(self):
         path = self.repo / ".github" / "ISSUE_TEMPLATE" / "skill-feedback.md"
-        path.write_text(path.read_text(encoding="utf-8").replace("Skill 版本：1.2.0", "Skill 版本：1.2.1"), encoding="utf-8")
+        path.write_text(path.read_text(encoding="utf-8").replace("Skill 版本：1.2.1", "Skill 版本：1.2.2"), encoding="utf-8")
         self.assertTrue(any("Issue template does not identify version" in e for e in self.errors()))
 
     def test_main_push_guard_skips_the_zero_before_sha_on_initial_push(self):
@@ -131,6 +131,20 @@ class DeliveryContractTests(unittest.TestCase):
             "github.event.before != '0000000000000000000000000000000000000000'",
             workflow,
         )
+
+    def test_public_beta_docs_do_not_require_an_invitation(self):
+        readme = (self.repo / "README.md").read_text(encoding="utf-8")
+        support = (self.repo / "SUPPORT.md").read_text(encoding="utf-8")
+        feedback = (self.repo / "FEEDBACK.md").read_text(encoding="utf-8")
+        issue_template = (
+            self.repo / ".github" / "ISSUE_TEMPLATE" / "skill-feedback.md"
+        ).read_text(encoding="utf-8")
+
+        self.assertIn("公开测试", readme)
+        self.assertIn("任何人都可查看", support)
+        for text in (readme, support, feedback, issue_template):
+            self.assertNotIn("私有仓库", text)
+            self.assertNotIn("受邀成员", text)
 
 
 if __name__ == "__main__":
