@@ -1,12 +1,12 @@
 # 基论港辩论教练·公开测试
 
-这是 `jilungang-debate-coach` 1.2.3 的公开测试版。如果你手上正好有一道辩题、一篇写不顺的稿，或一份不知道怎样处理的对方材料，可以直接拿来试。
+这是 `jilungang-debate-coach` 1.2.4 的公开测试版。如果你手上正好有一道辩题、一篇写不顺的稿，或一份不知道怎样处理的对方材料，可以直接拿来试。
 
 我不期待它替你包办整场比赛。我更在意的是，它能不能先找到你当下真正卡住的地方，再把这一步做完。
 
 ## 先拿一个真问题来试
 
-还没选边时，可以让它先中立分析。已经有持方时，可以让它建立立论或写一辩稿。如果你已经写了一半，可以只让它找出最影响结论的那处问题。有对方材料时，再继续做攻防、质询或总结。
+还没选边时，可以让它先中立分析。已经有持方时，可以让它建立立论或写一辩稿。如果你已经写了一半，可以只让它找出最影响结论的那处问题。有对方材料或真实赛场记录时，再继续做攻防、质询、自由辩论、总结、复盘或评判。
 
 事实型辩题也可以拿来，但请告诉它你需要资料查询。这时的重点不是找几条看起来支持己方的网页，而是先说清楚到底要证明什么。
 
@@ -18,7 +18,7 @@
 
 ## 两个发行入口
 
-GitHub Release 是版本基准，小红书 Skill Hub 提供同版本的便捷安装入口。两个渠道中的五个方法与评测文件——`SKILL.md`、`evals/regression.json` 和三份 `references`——必须逐字一致。小红书暂不接收 YAML 和无扩展名文件，因此 Codex 界面元数据 `agents/openai.yaml` 由小红书详情字段替代，`LICENSE` 与 `VERSION` 分别以内容相同的 `LICENSE.txt`、`VERSION.txt` 携带。这些包装差异不会改写辩论方法。
+GitHub Release 是版本基准，小红书 Skill Hub 提供同版本的便捷安装入口。两个渠道中的五个方法与评测文件——`SKILL.md`、`evals/regression.json` 和三份 `references`——必须逐字一致。小红书暂不接收 YAML 和无扩展名文件，因此 Codex 界面元数据 `agents/openai.yaml` 由小红书详情字段替代，`LICENSE` 与 `VERSION` 分别以内容相同的 `LICENSE.txt`、`VERSION.txt` 携带。项目级致谢仅保留在 GitHub，不进入运行时安装包。这些包装差异不会改写辩论方法。
 
 安装前请核对 GitHub 的 `VERSION` 或小红书包中的 `VERSION.txt`。如果两个渠道的版本号不同，或五个方法与评测文件与对应 GitHub 标签不一致，请停止安装并反馈，不要自行拼接两个版本。
 
@@ -78,7 +78,7 @@ GitHub Release 是版本基准，小红书 Skill Hub 提供同版本的便捷安
 
 无法脱敏的问题、隐私问题和版权异议，请改用小红书私信。具体账号、提交顺序、误发处置和处理约定见 [SUPPORT.md](SUPPORT.md)。如果无法判断内容是否敏感，默认先私信问题摘要。
 
-更新时，先完全退出 Codex，将旧的 `jilungang-debate-coach` 目录移出作为备份或删除，再复制全新的完整目录；至少核对 `SKILL.md`、`evals/regression.json` 和三份 `references`。小红书包附带的许可证、第三方资料说明、致谢、反馈方式和版本文件可以保留。不要直接覆盖旧目录，以免遗留废弃文件。卸载时，退出 Codex，删除 `~/.codex/skills/jilungang-debate-coach` 文件夹，然后重新打开。
+更新时，先完全退出 Codex，将旧的 `jilungang-debate-coach` 目录移出作为备份或删除，再复制全新的完整目录；至少核对 `SKILL.md`、`evals/regression.json` 和三份 `references`。小红书包附带的许可证、第三方资料说明、反馈方式和版本文件可以保留。不要直接覆盖旧目录，以免遗留废弃文件。卸载时，退出 Codex，删除 `~/.codex/skills/jilungang-debate-coach` 文件夹，然后重新打开。
 
 安装前请记录 [VERSION](VERSION)、下载标签和提交号，并优先从固定 Release 或标签下载，不以浮动的 `main` 作为可复现版本。详细的脱敏反馈字段见 [FEEDBACK.md](FEEDBACK.md)。
 

@@ -13,14 +13,14 @@ import stat
 import sys
 
 
-EXPECTED_VERSION = "1.2.3"
+EXPECTED_VERSION = "1.2.4"
 SKILL_DIR = "jilungang-debate-coach"
 SKILL_HASHES = {
-    "SKILL.md": "ca06e340afa950effde55dac45c561a88edd452922d3020be349b19de99b76ce",
+    "SKILL.md": "d9104503e5f47388986e7ea2bb881e08400c046fb83f66403c4a02e366f0d500",
     "agents/openai.yaml": "cd29bec94b50a145bdcfa0b0ffc6c9402502e8981671d950a361e43aa27d145d",
-    "evals/regression.json": "592ff58c9302394582e854943dc0346ae5e586ef8358c8d774342d7fb731f4be",
-    "references/method-model.md": "4821f8d1016e9cb2a0c848e81889df1b7bdd8d709f5bad0070dc918f85684f9f",
-    "references/provenance-audit.md": "d030aea6d607de22dbaa892de17a72212653235e6560573fc33c90d3e99223d6",
+    "evals/regression.json": "0cf48402a6ecf5438111b2ace9f5032604e4d4e066d245361720861dc6fdee43",
+    "references/method-model.md": "e9a9f0e01aa18fe1282ba84a0ed4092b5b4a071e315f0e0edac69b3122eb6ed2",
+    "references/provenance-audit.md": "feae410b685fa810afb0a2f77ea130316f99fe06fffe4093a4d0c10f26b94939",
     "references/research-sourcing.md": "328e0039b44feb7d910042357e75cd3a833b64bda181ffeb20f7b69e0b6d751e",
 }
 REQUIRED_ROOT_FILES = {

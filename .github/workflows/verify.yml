@@ -23,13 +23,27 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Keep the Skill payload unchanged in this delivery PR
+      - name: Require a version bump for Skill payload changes in a PR
         if: github.event_name == 'pull_request'
-        run: git diff --exit-code "origin/${{ github.base_ref }}...HEAD" -- jilungang-debate-coach
+        run: |
+          range="origin/${{ github.base_ref }}...HEAD"
+          if ! git diff --quiet "$range" -- jilungang-debate-coach; then
+            git diff --quiet "$range" -- VERSION && {
+              echo "::error::Skill payload changes must include a VERSION change."
+              exit 1
+            }
+          fi
 
-      - name: Reject direct Skill payload changes on main
+      - name: Require a version bump for Skill payload changes on main
         if: github.event_name == 'push' && github.ref_type == 'branch' && github.event.before != '0000000000000000000000000000000000000000'
-        run: git diff --exit-code "${{ github.event.before }}...${{ github.sha }}" -- jilungang-debate-coach
+        run: |
+          range="${{ github.event.before }}...${{ github.sha }}"
+          if ! git diff --quiet "$range" -- jilungang-debate-coach; then
+            git diff --quiet "$range" -- VERSION && {
+              echo "::error::Skill payload changes must include a VERSION change."
+              exit 1
+            }
+          fi
 
       - name: Run delivery unit tests
         run: python3 -m unittest discover -s tests -v

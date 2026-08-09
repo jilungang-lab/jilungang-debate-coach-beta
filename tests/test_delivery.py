@@ -110,16 +110,18 @@ class DeliveryContractTests(unittest.TestCase):
 
     def test_readme_version_mismatch_is_reported(self):
         path = self.repo / "README.md"
-        path.write_text(path.read_text(encoding="utf-8").replace("1.2.3", "1.2.4"), encoding="utf-8")
+        current = (self.repo / "VERSION").read_text(encoding="utf-8").strip()
+        path.write_text(path.read_text(encoding="utf-8").replace(current, "9.9.9"), encoding="utf-8")
         self.assertTrue(any("README.md does not identify version" in e for e in self.errors()))
 
     def test_conflicting_version_declaration_is_reported(self):
         path = self.repo / "README.md"
-        path.write_text(path.read_text(encoding="utf-8") + "\n当前版本：1.2.4\n", encoding="utf-8")
+        path.write_text(path.read_text(encoding="utf-8") + "\n当前版本：9.9.9\n", encoding="utf-8")
         self.assertTrue(any("conflicting version" in e for e in self.errors()))
 
     def test_tag_version_mismatch_is_reported(self):
-        self.assertTrue(any("tag must be v1.2.3" in e for e in self.errors(mode="tag", ref_name="v1.2.4")))
+        version = (self.repo / "VERSION").read_text(encoding="utf-8").strip()
+        self.assertTrue(any(f"tag must be v{version}" in e for e in self.errors(mode="tag", ref_name="v0.0.0")))
 
     def test_contact_number_is_canonical(self):
         support = (self.repo / "SUPPORT.md").read_text(encoding="utf-8")
@@ -135,7 +137,8 @@ class DeliveryContractTests(unittest.TestCase):
 
     def test_issue_template_version_must_match(self):
         path = self.repo / ".github" / "ISSUE_TEMPLATE" / "skill-feedback.md"
-        path.write_text(path.read_text(encoding="utf-8").replace("Skill 版本：1.2.3", "Skill 版本：1.2.4"), encoding="utf-8")
+        current = (self.repo / "VERSION").read_text(encoding="utf-8").strip()
+        path.write_text(path.read_text(encoding="utf-8").replace(f"Skill 版本：{current}", "Skill 版本：9.9.9"), encoding="utf-8")
         self.assertTrue(any("Issue template does not identify version" in e for e in self.errors()))
 
     def test_main_push_guard_skips_the_zero_before_sha_on_initial_push(self):
@@ -144,6 +147,14 @@ class DeliveryContractTests(unittest.TestCase):
             "github.event.before != '0000000000000000000000000000000000000000'",
             workflow,
         )
+
+    def test_ci_requires_a_version_bump_instead_of_freezing_skill_updates(self):
+        workflow = (self.repo / ".github" / "workflows" / "verify.yml").read_text(encoding="utf-8")
+
+        self.assertIn("Require a version bump for Skill payload changes", workflow)
+        self.assertIn("-- VERSION", workflow)
+        self.assertNotIn("Keep the Skill payload unchanged", workflow)
+        self.assertNotIn("Reject direct Skill payload changes", workflow)
 
     def test_ci_builds_the_xiaohongshu_distribution(self):
         workflow = (self.repo / ".github" / "workflows" / "verify.yml").read_text(encoding="utf-8")
@@ -164,6 +175,33 @@ class DeliveryContractTests(unittest.TestCase):
         for text in (readme, support, feedback, issue_template):
             self.assertNotIn("私有仓库", text)
             self.assertNotIn("受邀成员", text)
+
+    def test_runtime_skill_has_a_non_personal_project_identity(self):
+        runtime_files = (
+            "SKILL.md",
+            "evals/regression.json",
+            "references/method-model.md",
+            "references/provenance-audit.md",
+            "references/research-sourcing.md",
+        )
+        forbidden = ("张子龙", "本人原作", "原作层综合", "黑岛", "338 条", "259 条")
+        combined = "\n".join(
+            (self.repo / "jilungang-debate-coach" / relative).read_text(encoding="utf-8")
+            for relative in runtime_files
+        )
+
+        for phrase in forbidden:
+            self.assertNotIn(phrase, combined)
+        self.assertIn("基论港不等同于任何被引用、致谢或参考的个人", combined)
+        self.assertIn("用户询问基论港是什么或能做什么时", combined)
+
+    def test_regression_suite_guards_project_identity(self):
+        path = self.repo / "jilungang-debate-coach" / "evals" / "regression.json"
+        data = json.loads(path.read_text(encoding="utf-8"))
+        cases = {case["name"]: case for case in data["cases"]}
+
+        self.assertIn("基论港自我介绍", cases)
+        self.assertIn("基论港的方法归属", cases)
 
     def test_readme_defines_the_dual_distribution_boundary(self):
         readme = (self.repo / "README.md").read_text(encoding="utf-8")
@@ -196,7 +234,7 @@ class DeliveryContractTests(unittest.TestCase):
         self.assertIn("jilungang-debate-coach/SKILL.md", names)
         self.assertIn("jilungang-debate-coach/LICENSE.txt", names)
         self.assertIn("jilungang-debate-coach/NOTICE.md", names)
-        self.assertIn("jilungang-debate-coach/ACKNOWLEDGEMENTS.md", names)
+        self.assertNotIn("jilungang-debate-coach/ACKNOWLEDGEMENTS.md", names)
         self.assertIn("jilungang-debate-coach/SUPPORT.md", names)
         self.assertIn("jilungang-debate-coach/VERSION.txt", names)
         self.assertNotIn("jilungang-debate-coach/agents/openai.yaml", names)
@@ -234,7 +272,7 @@ class DeliveryContractTests(unittest.TestCase):
 
     def test_xiaohongshu_builder_rejects_an_oversized_source_file(self):
         builder = load_xhs_builder()
-        source = self.repo / "ACKNOWLEDGEMENTS.md"
+        source = self.repo / "NOTICE.md"
         source.write_bytes(b"x" * (builder.MAX_FILE_SIZE + 1))
 
         with self.assertRaisesRegex(ValueError, "10 MB"):

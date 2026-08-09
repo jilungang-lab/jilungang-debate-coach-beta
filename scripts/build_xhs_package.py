@@ -23,7 +23,6 @@ PACKAGE_FILES = {
     "references/research-sourcing.md": "jilungang-debate-coach/references/research-sourcing.md",
     "LICENSE.txt": "LICENSE",
     "NOTICE.md": "NOTICE.md",
-    "ACKNOWLEDGEMENTS.md": "ACKNOWLEDGEMENTS.md",
     "SUPPORT.md": "SUPPORT.md",
     "VERSION.txt": "VERSION",
 }
