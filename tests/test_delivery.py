@@ -6,16 +6,29 @@ import re
 import shutil
 import tempfile
 import unittest
+import warnings
+import zipfile
 
 
 REPO = Path(__file__).resolve().parents[1]
 VALIDATOR_PATH = REPO / "scripts" / "verify_delivery.py"
+XHS_BUILDER_PATH = REPO / "scripts" / "build_xhs_package.py"
 
 
 def load_validator():
     if not VALIDATOR_PATH.is_file():
         raise AssertionError("missing delivery validator: scripts/verify_delivery.py")
     spec = importlib.util.spec_from_file_location("verify_delivery", VALIDATOR_PATH)
+    module = importlib.util.module_from_spec(spec)
+    assert spec.loader is not None
+    spec.loader.exec_module(module)
+    return module
+
+
+def load_xhs_builder():
+    if not XHS_BUILDER_PATH.is_file():
+        raise AssertionError("missing Xiaohongshu package builder: scripts/build_xhs_package.py")
+    spec = importlib.util.spec_from_file_location("build_xhs_package", XHS_BUILDER_PATH)
     module = importlib.util.module_from_spec(spec)
     assert spec.loader is not None
     spec.loader.exec_module(module)
@@ -97,16 +110,16 @@ class DeliveryContractTests(unittest.TestCase):
 
     def test_readme_version_mismatch_is_reported(self):
         path = self.repo / "README.md"
-        path.write_text(path.read_text(encoding="utf-8").replace("1.2.1", "1.2.2"), encoding="utf-8")
+        path.write_text(path.read_text(encoding="utf-8").replace("1.2.2", "1.2.3"), encoding="utf-8")
         self.assertTrue(any("README.md does not identify version" in e for e in self.errors()))
 
     def test_conflicting_version_declaration_is_reported(self):
         path = self.repo / "README.md"
-        path.write_text(path.read_text(encoding="utf-8") + "\n当前版本：1.2.2\n", encoding="utf-8")
+        path.write_text(path.read_text(encoding="utf-8") + "\n当前版本：1.2.3\n", encoding="utf-8")
         self.assertTrue(any("conflicting version" in e for e in self.errors()))
 
     def test_tag_version_mismatch_is_reported(self):
-        self.assertTrue(any("tag must be v1.2.1" in e for e in self.errors(mode="tag", ref_name="v1.2.2")))
+        self.assertTrue(any("tag must be v1.2.2" in e for e in self.errors(mode="tag", ref_name="v1.2.3")))
 
     def test_contact_number_is_canonical(self):
         support = (self.repo / "SUPPORT.md").read_text(encoding="utf-8")
@@ -122,7 +135,7 @@ class DeliveryContractTests(unittest.TestCase):
 
     def test_issue_template_version_must_match(self):
         path = self.repo / ".github" / "ISSUE_TEMPLATE" / "skill-feedback.md"
-        path.write_text(path.read_text(encoding="utf-8").replace("Skill 版本：1.2.1", "Skill 版本：1.2.2"), encoding="utf-8")
+        path.write_text(path.read_text(encoding="utf-8").replace("Skill 版本：1.2.2", "Skill 版本：1.2.3"), encoding="utf-8")
         self.assertTrue(any("Issue template does not identify version" in e for e in self.errors()))
 
     def test_main_push_guard_skips_the_zero_before_sha_on_initial_push(self):
@@ -131,6 +144,12 @@ class DeliveryContractTests(unittest.TestCase):
             "github.event.before != '0000000000000000000000000000000000000000'",
             workflow,
         )
+
+    def test_ci_builds_the_xiaohongshu_distribution(self):
+        workflow = (self.repo / ".github" / "workflows" / "verify.yml").read_text(encoding="utf-8")
+
+        self.assertIn("build_xhs_package.py", workflow)
+        self.assertIn("jilungang-debate-coach-xiaohongshu.zip", workflow)
 
     def test_public_beta_docs_do_not_require_an_invitation(self):
         readme = (self.repo / "README.md").read_text(encoding="utf-8")
@@ -145,6 +164,111 @@ class DeliveryContractTests(unittest.TestCase):
         for text in (readme, support, feedback, issue_template):
             self.assertNotIn("私有仓库", text)
             self.assertNotIn("受邀成员", text)
+
+    def test_readme_defines_the_dual_distribution_boundary(self):
+        readme = (self.repo / "README.md").read_text(encoding="utf-8")
+
+        self.assertIn("GitHub Release 是版本基准", readme)
+        self.assertIn("小红书 Skill Hub", readme)
+        self.assertIn("六个运行文件", readme)
+        self.assertIn("VERSION", readme)
+
+    def test_public_beta_license_allows_uninvited_personal_evaluation(self):
+        license_text = (self.repo / "LICENSE").read_text(encoding="utf-8")
+
+        self.assertIn("any person", license_text)
+        self.assertIn("personal, non-commercial evaluation", license_text)
+        self.assertNotIn("only to users explicitly invited", license_text)
+
+    def test_xiaohongshu_package_matches_github_release_files(self):
+        builder = load_xhs_builder()
+        destination = Path(self.tmp.name) / "xiaohongshu.zip"
+        second_destination = Path(self.tmp.name) / "xiaohongshu-second.zip"
+
+        builder.build_package(REPO, destination)
+        builder.build_package(REPO, second_destination)
+
+        self.assertEqual([], builder.verify_package(REPO, destination))
+        self.assertEqual(destination.read_bytes(), second_destination.read_bytes())
+        with zipfile.ZipFile(destination) as archive:
+            names = set(archive.namelist())
+        self.assertIn("jilungang-debate-coach/SKILL.md", names)
+        self.assertIn("jilungang-debate-coach/LICENSE", names)
+        self.assertIn("jilungang-debate-coach/NOTICE.md", names)
+        self.assertIn("jilungang-debate-coach/ACKNOWLEDGEMENTS.md", names)
+        self.assertIn("jilungang-debate-coach/SUPPORT.md", names)
+        self.assertIn("jilungang-debate-coach/VERSION", names)
+
+    def test_xiaohongshu_package_verifier_reports_a_corrupt_archive(self):
+        builder = load_xhs_builder()
+        destination = Path(self.tmp.name) / "corrupt.zip"
+        destination.write_bytes(b"not a zip archive")
+
+        errors = builder.verify_package(REPO, destination)
+
+        self.assertTrue(any("valid ZIP" in error for error in errors))
+
+    def test_xiaohongshu_builder_rejects_a_source_symlink(self):
+        builder = load_xhs_builder()
+        source = self.repo / "jilungang-debate-coach" / "SKILL.md"
+        backup = self.repo / "skill-copy.md"
+        shutil.copyfile(source, backup)
+        source.unlink()
+        os.symlink(backup, source)
+
+        with self.assertRaisesRegex(ValueError, "symbolic link"):
+            builder.build_package(self.repo, Path(self.tmp.name) / "symlink.zip")
+
+    def test_xiaohongshu_builder_rejects_a_symlinked_source_directory(self):
+        builder = load_xhs_builder()
+        source = self.repo / "jilungang-debate-coach" / "references"
+        backup = self.repo / "references-copy"
+        shutil.copytree(source, backup)
+        shutil.rmtree(source)
+        os.symlink(backup, source)
+
+        with self.assertRaisesRegex(ValueError, "symbolic link"):
+            builder.build_package(self.repo, Path(self.tmp.name) / "symlink-directory.zip")
+
+    def test_xiaohongshu_builder_rejects_an_oversized_source_file(self):
+        builder = load_xhs_builder()
+        source = self.repo / "ACKNOWLEDGEMENTS.md"
+        source.write_bytes(b"x" * (builder.MAX_FILE_SIZE + 1))
+
+        with self.assertRaisesRegex(ValueError, "10 MB"):
+            builder.build_package(self.repo, Path(self.tmp.name) / "oversized.zip")
+
+    def test_xiaohongshu_verifier_rejects_duplicate_entries(self):
+        builder = load_xhs_builder()
+        destination = Path(self.tmp.name) / "duplicate.zip"
+        builder.build_package(REPO, destination)
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", UserWarning)
+            with zipfile.ZipFile(destination, "a") as archive:
+                archive.writestr(
+                    "jilungang-debate-coach/SKILL.md",
+                    (REPO / "jilungang-debate-coach" / "SKILL.md").read_bytes(),
+                )
+
+        errors = builder.verify_package(REPO, destination)
+
+        self.assertTrue(any("duplicate packaged entry" in error for error in errors))
+
+    def test_xiaohongshu_verifier_rejects_tampered_content(self):
+        builder = load_xhs_builder()
+        original = Path(self.tmp.name) / "original.zip"
+        tampered = Path(self.tmp.name) / "tampered.zip"
+        builder.build_package(REPO, original)
+        with zipfile.ZipFile(original) as source_archive, zipfile.ZipFile(tampered, "w") as target_archive:
+            for info in source_archive.infolist():
+                payload = source_archive.read(info.filename)
+                if info.filename == "jilungang-debate-coach/SKILL.md":
+                    payload += b"\ntampered\n"
+                target_archive.writestr(info, payload)
+
+        errors = builder.verify_package(REPO, tampered)
+
+        self.assertTrue(any("differs from GitHub source" in error for error in errors))
 
 
 if __name__ == "__main__":

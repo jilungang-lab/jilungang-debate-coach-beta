@@ -13,7 +13,7 @@ import stat
 import sys
 
 
-EXPECTED_VERSION = "1.2.1"
+EXPECTED_VERSION = "1.2.2"
 SKILL_DIR = "jilungang-debate-coach"
 SKILL_HASHES = {
     "SKILL.md": "ca06e340afa950effde55dac45c561a88edd452922d3020be349b19de99b76ce",
@@ -34,6 +34,7 @@ REQUIRED_ROOT_FILES = {
     "SUPPORT.md",
     "VERSION",
     "scripts/verify_delivery.py",
+    "scripts/build_xhs_package.py",
     "tests/test_delivery.py",
 }
 LOCAL_LINK = re.compile(r"\[[^]]+\]\(([^)]+)\)")
@@ -190,7 +191,7 @@ def validate_repo(root: Path, *, mode: str = "normal", ref_name: str | None = No
         errors.append(f"VERSION must be {EXPECTED_VERSION}, found {version}")
 
     readable: dict[str, str] = {}
-    for relative in ("README.md", "FEEDBACK.md", "NOTICE.md", "SUPPORT.md"):
+    for relative in ("README.md", "FEEDBACK.md", "LICENSE", "NOTICE.md", "SUPPORT.md"):
         path = root / relative
         if path.is_file():
             text = _read_utf8(path, errors, relative)
@@ -231,6 +232,22 @@ def validate_repo(root: Path, *, mode: str = "normal", ref_name: str | None = No
         if text and "SUPPORT.md" not in text:
             errors.append(f"{relative} does not link to SUPPORT.md")
 
+    readme = readable.get("README.md", "")
+    for phrase in ("GitHub Release 是版本基准", "小红书 Skill Hub", "六个运行文件"):
+        if readme and phrase not in readme:
+            errors.append(f"README.md is missing dual distribution rule: {phrase}")
+
+    license_text = readable.get("LICENSE", "")
+    for phrase in (
+        "PUBLIC BETA EVALUATION LICENSE",
+        "any person",
+        "personal, non-commercial evaluation",
+    ):
+        if license_text and phrase not in license_text:
+            errors.append(f"LICENSE is missing public evaluation grant: {phrase}")
+    if "only to users explicitly invited" in license_text:
+        errors.append("LICENSE still restricts evaluation to invited users")
+
     account_matches = re.findall(r"小红书号[：:]\s*`?(\d{6,20})`?", support)
     if len(account_matches) != 1:
         errors.append("SUPPORT.md must contain exactly one complete Xiaohongshu account number")
@@ -269,7 +286,7 @@ def validate_repo(root: Path, *, mode: str = "normal", ref_name: str | None = No
     workflow_path = root / ".github/workflows/verify.yml"
     if workflow_path.is_file():
         workflow = _read_utf8(workflow_path, errors, "verification workflow") or ""
-        for phrase in ("pull_request:", "workflow_dispatch:", "tags:", "fetch-depth: 0", "actions/setup-python", "python-version: '3.12'", "unittest discover", "verify_delivery.py"):
+        for phrase in ("pull_request:", "workflow_dispatch:", "tags:", "fetch-depth: 0", "actions/setup-python", "python-version: '3.12'", "unittest discover", "verify_delivery.py", "build_xhs_package.py"):
             if phrase not in workflow:
                 errors.append(f"verification workflow is missing: {phrase}")
 

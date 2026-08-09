@@ -1,6 +1,6 @@
-# 内测反馈模板
+# 公开测试反馈模板
 
-当前 Skill 版本：`jilungang-debate-coach` 1.2.1。
+当前 Skill 版本：`jilungang-debate-coach` 1.2.2。
 
 ## 提交前先检查
 
@@ -10,7 +10,7 @@
 
 ## 基本信息
 
-- Skill 版本：1.2.1
+- Skill 版本：1.2.2
 - Codex 版本（如知道）：
 - 操作系统：
 - 安装来源（Release／标签／提交号）：

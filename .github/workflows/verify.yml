@@ -34,6 +34,9 @@ jobs:
       - name: Run delivery unit tests
         run: python3 -m unittest discover -s tests -v
 
+      - name: Build and verify Xiaohongshu distribution
+        run: python3 scripts/build_xhs_package.py --root . --output "$RUNNER_TEMP/jilungang-debate-coach-xiaohongshu.zip"
+
       - name: Verify ordinary commit
         if: github.ref_type != 'tag'
         run: python3 scripts/verify_delivery.py
