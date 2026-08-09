@@ -1,0 +1,43 @@
+name: Verify beta delivery
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Keep the Skill payload unchanged in this delivery PR
+        if: github.event_name == 'pull_request'
+        run: git diff --exit-code "origin/${{ github.base_ref }}...HEAD" -- jilungang-debate-coach
+
+      - name: Reject direct Skill payload changes on main
+        if: github.event_name == 'push' && github.ref_type == 'branch'
+        run: git diff --exit-code "${{ github.event.before }}...${{ github.sha }}" -- jilungang-debate-coach
+
+      - name: Run delivery unit tests
+        run: python3 -m unittest discover -s tests -v
+
+      - name: Verify ordinary commit
+        if: github.ref_type != 'tag'
+        run: python3 scripts/verify_delivery.py
+
+      - name: Verify release tag
+        if: github.ref_type == 'tag'
+        run: python3 scripts/verify_delivery.py --mode tag --ref-name "${{ github.ref_name }}"

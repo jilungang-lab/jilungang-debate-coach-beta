@@ -1,0 +1,4 @@
+interface:
+  display_name: "基论港辩论教练"
+  short_description: "竞技辩题分析、持方立论、稿件修改、攻防质询、结辩复盘与资料查询核验"
+  default_prompt: "使用 $jilungang-debate-coach 完成我明确要求的竞技辩论任务。"
