@@ -17,16 +17,15 @@ FIXED_TIMESTAMP = (2020, 1, 1, 0, 0, 0)
 
 PACKAGE_FILES = {
     "SKILL.md": "jilungang-debate-coach/SKILL.md",
-    "agents/openai.yaml": "jilungang-debate-coach/agents/openai.yaml",
     "evals/regression.json": "jilungang-debate-coach/evals/regression.json",
     "references/method-model.md": "jilungang-debate-coach/references/method-model.md",
     "references/provenance-audit.md": "jilungang-debate-coach/references/provenance-audit.md",
     "references/research-sourcing.md": "jilungang-debate-coach/references/research-sourcing.md",
-    "LICENSE": "LICENSE",
+    "LICENSE.txt": "LICENSE",
     "NOTICE.md": "NOTICE.md",
     "ACKNOWLEDGEMENTS.md": "ACKNOWLEDGEMENTS.md",
     "SUPPORT.md": "SUPPORT.md",
-    "VERSION": "VERSION",
+    "VERSION.txt": "VERSION",
 }
 
 
@@ -132,7 +131,7 @@ def verify_package(repo: Path, package: Path) -> list[str]:
             if archive.read(name) != source.read_bytes():
                 errors.append(f"packaged file differs from GitHub source: {name}")
 
-        license_name = _archive_name("LICENSE")
+        license_name = _archive_name("LICENSE.txt")
         if license_name in actual:
             license_text = archive.read(license_name).decode("utf-8")
             if "PUBLIC BETA EVALUATION LICENSE" not in license_text:

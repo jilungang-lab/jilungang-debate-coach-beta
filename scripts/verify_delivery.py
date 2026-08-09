@@ -233,7 +233,7 @@ def validate_repo(root: Path, *, mode: str = "normal", ref_name: str | None = No
             errors.append(f"{relative} does not link to SUPPORT.md")
 
     readme = readable.get("README.md", "")
-    for phrase in ("GitHub Release 是版本基准", "小红书 Skill Hub", "六个运行文件"):
+    for phrase in ("GitHub Release 是版本基准", "小红书 Skill Hub", "五个方法与评测文件", "openai.yaml"):
         if readme and phrase not in readme:
             errors.append(f"README.md is missing dual distribution rule: {phrase}")
 

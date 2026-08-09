@@ -170,7 +170,8 @@ class DeliveryContractTests(unittest.TestCase):
 
         self.assertIn("GitHub Release 是版本基准", readme)
         self.assertIn("小红书 Skill Hub", readme)
-        self.assertIn("六个运行文件", readme)
+        self.assertIn("五个方法与评测文件", readme)
+        self.assertIn("openai.yaml", readme)
         self.assertIn("VERSION", readme)
 
     def test_public_beta_license_allows_uninvited_personal_evaluation(self):
@@ -193,11 +194,12 @@ class DeliveryContractTests(unittest.TestCase):
         with zipfile.ZipFile(destination) as archive:
             names = set(archive.namelist())
         self.assertIn("jilungang-debate-coach/SKILL.md", names)
-        self.assertIn("jilungang-debate-coach/LICENSE", names)
+        self.assertIn("jilungang-debate-coach/LICENSE.txt", names)
         self.assertIn("jilungang-debate-coach/NOTICE.md", names)
         self.assertIn("jilungang-debate-coach/ACKNOWLEDGEMENTS.md", names)
         self.assertIn("jilungang-debate-coach/SUPPORT.md", names)
-        self.assertIn("jilungang-debate-coach/VERSION", names)
+        self.assertIn("jilungang-debate-coach/VERSION.txt", names)
+        self.assertNotIn("jilungang-debate-coach/agents/openai.yaml", names)
 
     def test_xiaohongshu_package_verifier_reports_a_corrupt_archive(self):
         builder = load_xhs_builder()
